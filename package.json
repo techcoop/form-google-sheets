@@ -1,6 +1,6 @@
 {
   "name": "form-google-sheets",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Uses Google Apps Scripts with Google Sheets to provide a POST endpoint for form data that is parsed into sheet fields.",
   "main": "lib/index.js",
   "jsnext:main": "src/index.js",
