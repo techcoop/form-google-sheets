@@ -23,10 +23,10 @@
  */
 
 /*
- * Tech Cooperative - Serverless-Form
+ * Tech Cooperative - form-google-sheets
  *
  * Full Instructions:
- * https://github.com/techcoop/serverless-form
+ * https://github.com/techcoop/form-google-sheets
  *
  * TO USE:
  * 1) Change the values below as needed
@@ -49,27 +49,33 @@
  *
  */
 
-// TODO an actual data validation setup
-// TODO test injection techniques, google probably handling properly
-
+// Configure sheet
 var SHEET_NAME           = 'responses';  // CONFIGURE - The name of the sheet in your spreadsheet
 var NOTIFICATION_EMAIL   = '';           // CONFIGURE - Should match the google account you are using
-var NOTIFICATION_ENABLED = true;         // Should set to false if you do not want to email
+var NOTIFICATION_ENABLED = false;        // Should set to true if you want to email a notice
 var DEBUG                = false;        // Should set to true if you want to log to console
 
-// CONFIGURE - Change these values as needed, they should match your form fields with sensible test data
+// Configure defauly messages
+var INVALID_MESSAGE      = 'There are errors with your form.';
+var SUCCESS_MESSAGE      = 'Thank you for your interest.';
+
+// Setup fields that need validation
+var fields = {
+  email: {required: true, message: 'You must provide an email address so that we can get in touch with you.'}
+}
+
+// TODO add regex patterns and mix / max length to validation setup for fields
+// TODO test injection techniques, google probably handling properly
+// TODO add captcha to form
+// TODO improve notification email to default with no values
+
+// TEST CONFIGURE - Change these values as needed, they should match your form fields with sensible test data
 var testData = {
   email: NOTIFICATION_EMAIL,  // Can change this too
   name: 'Some Guy',
   company_name: 'Some Company',
   description: 'Test Descriptions',
-  training: 'on',
-  placements: 'on',
-  assessments: 'on',
-  architecture: 'on',
-  optimization: 'on',
-  automation: 'on',
-  prototyping: 'on'
+  subscribe: 'on'
 }
 
 function test_post() {
@@ -82,11 +88,21 @@ function test_post() {
 
 function doPost(e) {
   try {
-    // Make sure there's an email
-    if (e.parameters.email === undefined || e.parameters.email === '') {
-      return handleError('You must provide an email address so that we can get in touch with you.');
+    // Validate defined fields
+    var errors = {}
+    for (field in fields) {
+      if(fields[field].required) {
+        if (e.parameters[field] === undefined || e.parameters[field] === '') {
+          errors[field] = fields[field]
+        }
+      }
     }
-
+    
+    // If the form has errors
+    if (Object.getOwnPropertyNames(errors).length !== 0) {
+      return handleError(INVALID_MESSAGE, errors);
+    }
+    
     // Get sheet references
     try {
       var doc = SpreadsheetApp.getActiveSpreadsheet();
@@ -122,7 +138,7 @@ function doPost(e) {
 
     // Write to sheet
     sheet.getRange(nextRow, 1, 1, row.length).setValues([row]);
-    Logger.log(e.parameters.name)
+    
     // If notifcation, send email
     if (NOTIFICATION_ENABLED) {
       MailApp.sendEmail({
@@ -133,7 +149,7 @@ function doPost(e) {
       });
     }
 
-    var message = 'Thank you for your request.  We will be in touch soon.'
+    var message = SUCCESS_MESSAGE
     return handleSuccess(message)
 
   } catch(error) {
@@ -160,7 +176,7 @@ function getResponse(data) {
 
 // Wraps error
 function handleError(message, data) {
-  var error = {status: 'error', message: message}
+  var error = {error: message}
   if (data) {
     error['data'] = data
   }
@@ -174,11 +190,11 @@ function handleError(message, data) {
 
 // Wraps success
 function handleSuccess(message, data) {
-  var success = {status: 'success', message: message}
+  var success = {message: message}
   if (data) {
     success['data'] = data
   }
-
+  
   if (DEBUG) {
     Logger.log(success)
   }
