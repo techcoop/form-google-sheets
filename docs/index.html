@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Form-Google-Sheets</title>
+    <script src="form-google-sheets.js"></script>
+    <style>
+       .form-field {
+           margin: 10px;
+           width: 150px;
+       }
+    </style>
+</head>
+<body>
+<h1>Form Google Sheets</h1>
+    <h3>From form submit</h3>
+    <script>
+        // Example using form submit
+        var endpoint = 'https://script.google.com/macros/s/AKfycbyEBGqfIUmxrLKMp_LlAlH8C_VO9vfRvtvwgjAS9lEi8Vu8xho/exec'
+        var form = new FormGoogleSheets.Form(endpoint).then(function(event) {
+            console.log(event)
+            document.getElementById('form-success').innerHTML = event.message
+        }).catch(function(event) {
+            console.log(event)
+            document.getElementById('form-error').innerHTML = event.error
+        })
+    </script>
+
+    <form onsubmit="return form.submit(this)" method="POST">
+        <div class="form-field">
+            <label for="email">Email</label>
+            <input type="email" name="email" required="" pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{1,63}$">
+        </div>
+        <div class="form-field">
+            <label for="name">Name</label>
+            <input type="text" value="" name="name">
+        </div>
+        <div class="form-field">
+            <label for="company-name">Company</label>
+            <input type="text" value="" name="company_name">
+        </div>
+        <div class="form-field">
+            <label for="description">Description</label>
+            <textarea id="description" value="" name="description"></textarea>
+        </div>
+        <div class="form-field">
+            <label for="subscribe">Subscribe</label>
+            <input type="checkbox" name="subscribe" value="on">
+        </div>
+        <input type="submit" value="Contact"/>
+    </form>
+    
+    <div style="padding: 20px">
+        <div id="form-success" style="color:green;"></div>
+        <div id="form-error" style="color:red;"></div>
+    </div>
+
+    <br />
+    <h3>From onclick event</h3>
+    <script>
+        // Example using form submit
+        var endpoint = 'https://script.google.com/macros/s/AKfycbyEBGqfIUmxrLKMp_LlAlH8C_VO9vfRvtvwgjAS9lEi8Vu8xho/exec'
+        var click = new FormGoogleSheets.Form(endpoint).then(function(event) {
+            console.log(event)
+            document.getElementById('click-success').innerHTML = event.message
+        }).catch(function(event) {
+            console.log(event)
+            document.getElementById('click-error').innerHTML = event.error
+        })
+    </script>
+
+    <form id='click-form'>
+        <div class="form-field">
+            <label for="email">Email</label>
+            <input type="email" name="email" required="" pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{1,63}$">
+        </div>
+        <div class="form-field">
+            <label for="name">Name</label>
+            <input type="text" value="" name="name">
+        </div>
+        <div class="form-field">
+            <label for="company-name">Company</label>
+            <input type="text" value="" name="company_name">
+        </div>
+        <div class="form-field">
+            <label for="description">Description</label>
+            <textarea id="description" value="" name="description"></textarea>
+        </div>
+        <div class="form-field">
+            <label for="subscribe">Subscribe</label>
+            <input type="checkbox" name="subscribe" value="on">
+        </div>
+    </form>
+
+    <script>
+        function clickSubmit(e) {
+            click.submit(document.getElementById('click-form'), function(event) {
+                console.log('Click submit success', event)
+            }, function(event) {
+                console.log('Click submit error', event)
+            })
+        }
+    </script>
+    <button onclick="clickSubmit()">Contact</button>
+    
+    <div style="padding: 20px">
+        <div id="click-success" style="color:green;"></div>
+        <div id="click-error" style="color:red;"></div>
+    </div>
+
+    <br />
+    <h3>Custom messages and validation</h3>
+    <script>
+        // Example using custom messages and validation
+        var endpoint = 'https://script.google.com/macros/s/AKfycbyEBGqfIUmxrLKMp_LlAlH8C_VO9vfRvtvwgjAS9lEi8Vu8xho/exec'
+
+        // Custom messages will override message from backend
+        var messages = {
+            success: 'YAY, VICTORY!',
+            error: 'OOPS, ERRORS!'
+        }
+
+        // Validation function returns true or false
+        function validate(form) {
+            email = document.getElementById('custom-email')
+
+            // Just validate email is not empty
+            if (email.value !== '') {
+                return true
+            }
+            
+            return false
+        }
+
+        // Create form with custom messages and validation, passed to constructor
+        var custom = new FormGoogleSheets.Form(endpoint, messages, validate)
+
+        // Listen for success / error
+        custom.then(function(event) {
+            console.log(event)
+            document.getElementById('custom-success').innerHTML = event.message
+        }).catch(function(event) {
+            console.log(event)
+            document.getElementById('custom-error').innerHTML = event.error
+        })
+    </script>
+
+    <form id='click-form' onsubmit="return custom.submit(this)">
+        <div class="form-field">
+            <label for="email">Email</label>
+            <input type="text" id="custom-email" name="email">
+        </div>
+        <input type="submit" value="Contact"/>
+    </form>
+
+    <div style="padding: 20px">
+        <div id="custom-success" style="color:green;"></div>
+        <div id="custom-error" style="color:red;"></div>
+    </div>
+
+</body>
+</html>
