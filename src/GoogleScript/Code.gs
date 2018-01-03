@@ -71,7 +71,7 @@ var fields = {
 
 // TEST CONFIGURE - Change these values as needed, they should match your form fields with sensible test data
 var testData = {
-  email: NOTIFICATION_EMAIL,  // Can change this too
+  email: 'test@test.com',  // Can change this too
   name: 'Some Guy',
   company_name: 'Some Company',
   description: 'Test Descriptions',
